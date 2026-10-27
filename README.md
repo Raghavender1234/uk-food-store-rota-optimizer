@@ -155,6 +155,25 @@ For the native Android app, see the [`android_app/`](android_app/) directory and
 
 ---
 
+## 🗺️ Roadmap & Upcoming Features
+
+- [x] Multi-objective CP-SAT scheduling (Balanced, Powerhouse, Budget)
+- [x] Conversational NLP constraint parser & alias resolver
+- [x] Progressive Web App (PWA) with offline recovery & mobile install
+- [x] Native Android companion app with Jetpack Compose & WebView
+- [ ] **Weather & Sales Spike Predictor**: Ingest Open-Meteo rainfall / temperature data to dynamically inflate weekend headcounts
+- [ ] **Google Sheets 2-Way Sync**: Allow store managers to maintain worker availability in Google Sheets and auto-sync
+- [ ] **WhatsApp / Telegram Rota Dispatch**: 1-click publishing of personalized shift schedules directly to team members
+- [ ] **Multi-Location Store Hub**: Centralized enterprise view for district and area managers
+
+---
+
+## 🤝 Contributing
+
+Contributions are warmly welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) to get started. If you find this project helpful, give it a ⭐ to help other store managers and developers discover it!
+
+---
+
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE) - feel free to use, modify, and distribute it in private or commercial settings.

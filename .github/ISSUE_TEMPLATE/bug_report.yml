@@ -1,0 +1,23 @@
+name: Bug Report
+description: Report an issue with the solver, UI, or Android companion
+title: "[BUG] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for reporting an issue!
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: What happened? Did the solver return INFEASIBLE or fail on a specific rule?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: What rules or commands did you apply?
+      placeholder: 1. Applied rule 'Jordan max 20 hours' ...
+    validations:
+      required: true
