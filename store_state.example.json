@@ -1,0 +1,1206 @@
+{
+  "mode": "balanced",
+  "is_pay_week": false,
+  "weekly_budget": 4000.0,
+  "staff_list": [
+    {
+      "id": "alex_miller",
+      "name": "Alex Miller",
+      "role": "General Manager",
+      "pay_tier": "Salaried Manager",
+      "hourly_rate": 0.0,
+      "is_salaried": true,
+      "is_keyholder": true,
+      "primary_dept": "FOH",
+      "skills": [
+        "FOH",
+        "Grill",
+        "Fryers",
+        "Admin",
+        "Till",
+        "Serve",
+        "Stock"
+      ],
+      "max_weekly_hours": 45.0,
+      "manager_weekly_cap": 45.0,
+      "availability": "Any",
+      "shift_restriction": "None",
+      "global_boundary": "Salaried GM (\u00a30 variable marginal cost); Monday 7am food delivery & admin."
+    },
+    {
+      "id": "sam_taylor",
+      "name": "Sam Taylor",
+      "role": "Assistant Manager",
+      "pay_tier": "Assistant Manager (\u00a313.50/h)",
+      "hourly_rate": 13.5,
+      "is_salaried": false,
+      "is_keyholder": true,
+      "primary_dept": "FOH",
+      "skills": [
+        "FOH",
+        "Till",
+        "Serve",
+        "Grill",
+        "Stock"
+      ],
+      "max_weekly_hours": 40.0,
+      "manager_weekly_cap": 37.5,
+      "availability": "Any",
+      "shift_restriction": "None",
+      "global_boundary": "Keyholder, customer service lead, food safety lead."
+    },
+    {
+      "id": "jordan_lee",
+      "name": "Jordan Lee",
+      "role": "Team Leader",
+      "pay_tier": "Team Leader (\u00a312.80/h)",
+      "hourly_rate": 12.8,
+      "is_salaried": false,
+      "is_keyholder": true,
+      "primary_dept": "Kitchen",
+      "skills": [
+        "Kitchen",
+        "Grill",
+        "Fryers",
+        "FOH",
+        "Prep"
+      ],
+      "max_weekly_hours": 37.5,
+      "manager_weekly_cap": 35.0,
+      "availability": "Any",
+      "shift_restriction": "None",
+      "global_boundary": "Kitchen supervisor; peak dinner line coordinator."
+    },
+    {
+      "id": "casey_smith",
+      "name": "Casey Smith",
+      "role": "Team Leader",
+      "pay_tier": "Team Leader (\u00a312.50/h)",
+      "hourly_rate": 12.5,
+      "is_salaried": false,
+      "is_keyholder": true,
+      "primary_dept": "FOH",
+      "skills": [
+        "FOH",
+        "Till",
+        "Serve",
+        "Cashier"
+      ],
+      "max_weekly_hours": 35.0,
+      "manager_weekly_cap": 32.5,
+      "availability": "Any",
+      "shift_restriction": "None",
+      "global_boundary": "Front-of-house supervisor; close and cash reconciliation lead."
+    },
+    {
+      "id": "morgan_davis",
+      "name": "Morgan Davis",
+      "role": "Store Trainer",
+      "pay_tier": "Trainer (\u00a312.00/h)",
+      "hourly_rate": 12.0,
+      "is_salaried": false,
+      "is_keyholder": false,
+      "primary_dept": "Kitchen",
+      "skills": [
+        "Grill",
+        "Fryers",
+        "Kitchen",
+        "Prep"
+      ],
+      "max_weekly_hours": 35.0,
+      "manager_weekly_cap": 35.0,
+      "availability": "Any",
+      "shift_restriction": "None",
+      "global_boundary": "Grill station anchor and food quality lead."
+    },
+    {
+      "id": "riley_johnson",
+      "name": "Riley Johnson",
+      "role": "Crew Member",
+      "pay_tier": "Crew Member (\u00a311.44/h)",
+      "hourly_rate": 11.44,
+      "is_salaried": false,
+      "is_keyholder": false,
+      "primary_dept": "Kitchen",
+      "skills": [
+        "Kitchen",
+        "Grill",
+        "Prep"
+      ],
+      "max_weekly_hours": 35.0,
+      "manager_weekly_cap": 30.0,
+      "availability": "Any",
+      "shift_restriction": "None",
+      "global_boundary": "Reliable mid and evening kitchen support."
+    },
+    {
+      "id": "taylor_reed",
+      "name": "Taylor Reed",
+      "role": "Crew Member",
+      "pay_tier": "Crew Member (\u00a311.44/h)",
+      "hourly_rate": 11.44,
+      "is_salaried": false,
+      "is_keyholder": false,
+      "primary_dept": "FOH",
+      "skills": [
+        "FOH",
+        "Till",
+        "Serve"
+      ],
+      "max_weekly_hours": 30.0,
+      "manager_weekly_cap": 25.0,
+      "availability": "Any",
+      "shift_restriction": "None",
+      "global_boundary": "Daytime FOH specialist."
+    },
+    {
+      "id": "jamie_wilson",
+      "name": "Jamie Wilson",
+      "role": "Crew Member",
+      "pay_tier": "Crew Member (\u00a311.44/h)",
+      "hourly_rate": 11.44,
+      "is_salaried": false,
+      "is_keyholder": false,
+      "primary_dept": "Kitchen",
+      "skills": [
+        "Kitchen",
+        "Fryers",
+        "Prep"
+      ],
+      "max_weekly_hours": 25.0,
+      "manager_weekly_cap": 20.0,
+      "availability": "Any",
+      "shift_restriction": "None",
+      "global_boundary": "Mid-shift kitchen and prep."
+    },
+    {
+      "id": "chris_murphy",
+      "name": "Chris Murphy",
+      "role": "Crew Member",
+      "pay_tier": "Crew Member (\u00a311.44/h)",
+      "hourly_rate": 11.44,
+      "is_salaried": false,
+      "is_keyholder": false,
+      "primary_dept": "FOH",
+      "skills": [
+        "FOH",
+        "Till",
+        "Serve"
+      ],
+      "max_weekly_hours": 25.0,
+      "manager_weekly_cap": 20.0,
+      "availability": "Any",
+      "shift_restriction": "None",
+      "global_boundary": "Front desk, order taking, and dispatch."
+    },
+    {
+      "id": "pat_evans",
+      "name": "Pat Evans",
+      "role": "Crew Member",
+      "pay_tier": "Crew Member (\u00a311.44/h)",
+      "hourly_rate": 11.44,
+      "is_salaried": false,
+      "is_keyholder": false,
+      "primary_dept": "Kitchen",
+      "skills": [
+        "Kitchen",
+        "Grill",
+        "Fryers"
+      ],
+      "max_weekly_hours": 25.0,
+      "manager_weekly_cap": 20.0,
+      "availability": "Any",
+      "shift_restriction": "None",
+      "global_boundary": "Kitchen evening rush and closing maintenance."
+    },
+    {
+      "id": "drew_clark",
+      "name": "Drew Clark",
+      "role": "Crew Member",
+      "pay_tier": "Crew Member (\u00a311.44/h)",
+      "hourly_rate": 11.44,
+      "is_salaried": false,
+      "is_keyholder": false,
+      "primary_dept": "FOH",
+      "skills": [
+        "FOH",
+        "Till",
+        "Serve"
+      ],
+      "max_weekly_hours": 16.0,
+      "manager_weekly_cap": 16.0,
+      "availability": "Fri, Sat, Sun",
+      "shift_restriction": "None",
+      "global_boundary": "Weekend peak customer support."
+    },
+    {
+      "id": "skyler_white",
+      "name": "Skyler White",
+      "role": "Crew Member",
+      "pay_tier": "Crew Member (\u00a311.44/h)",
+      "hourly_rate": 11.44,
+      "is_salaried": false,
+      "is_keyholder": false,
+      "primary_dept": "Kitchen",
+      "skills": [
+        "Kitchen",
+        "Fryers",
+        "Prep"
+      ],
+      "max_weekly_hours": 16.0,
+      "manager_weekly_cap": 16.0,
+      "availability": "Fri, Sat, Sun",
+      "shift_restriction": "None",
+      "global_boundary": "Weekend kitchen line support."
+    },
+    {
+      "id": "rowan_brooks",
+      "name": "Rowan Brooks",
+      "role": "Crew Member",
+      "pay_tier": "Crew Member (\u00a311.44/h)",
+      "hourly_rate": 11.44,
+      "is_salaried": false,
+      "is_keyholder": false,
+      "primary_dept": "FOH",
+      "skills": [
+        "FOH",
+        "Till"
+      ],
+      "max_weekly_hours": 16.0,
+      "manager_weekly_cap": 16.0,
+      "availability": "Fri, Sat, Sun",
+      "shift_restriction": "None",
+      "global_boundary": "Peak dinner till operator."
+    },
+    {
+      "id": "cameron_bailey",
+      "name": "Cameron Bailey",
+      "role": "Crew Member",
+      "pay_tier": "Crew Member (\u00a311.44/h)",
+      "hourly_rate": 11.44,
+      "is_salaried": false,
+      "is_keyholder": false,
+      "primary_dept": "Kitchen",
+      "skills": [
+        "Kitchen",
+        "Grill"
+      ],
+      "max_weekly_hours": 16.0,
+      "manager_weekly_cap": 16.0,
+      "availability": "Fri, Sat, Sun",
+      "shift_restriction": "None",
+      "global_boundary": "Weekend dinner grill line."
+    },
+    {
+      "id": "avery_cooper",
+      "name": "Avery Cooper",
+      "role": "Crew Member",
+      "pay_tier": "Crew Member (\u00a311.44/h)",
+      "hourly_rate": 11.44,
+      "is_salaried": false,
+      "is_keyholder": false,
+      "primary_dept": "FOH",
+      "skills": [
+        "FOH",
+        "Serve"
+      ],
+      "max_weekly_hours": 12.0,
+      "manager_weekly_cap": 12.0,
+      "availability": "Sat, Sun",
+      "shift_restriction": "None",
+      "global_boundary": "Weekend daytime front support."
+    }
+  ],
+  "store_hours": {
+    "Mon": {
+      "open": "07:00",
+      "close": "22:45",
+      "food_start": "11:00",
+      "food_end": "22:00",
+      "order_day": true,
+      "order_finish": "14:00"
+    },
+    "Tue": {
+      "open": "09:00",
+      "close": "22:45",
+      "food_start": "11:00",
+      "food_end": "22:00",
+      "order_day": false
+    },
+    "Wed": {
+      "open": "09:00",
+      "close": "22:45",
+      "food_start": "11:00",
+      "food_end": "22:00",
+      "order_day": false
+    },
+    "Thu": {
+      "open": "09:00",
+      "close": "22:45",
+      "food_start": "11:00",
+      "food_end": "22:00",
+      "order_day": false
+    },
+    "Fri": {
+      "open": "09:00",
+      "close": "23:30",
+      "food_start": "11:00",
+      "food_end": "23:00",
+      "order_day": false
+    },
+    "Sat": {
+      "open": "09:00",
+      "close": "23:30",
+      "food_start": "11:00",
+      "food_end": "23:00",
+      "order_day": false
+    },
+    "Sun": {
+      "open": "09:00",
+      "close": "22:45",
+      "food_start": "11:00",
+      "food_end": "22:00",
+      "order_day": false
+    }
+  },
+  "global_rules": [
+    {
+      "id": "rule_mandatory_days_off",
+      "scope": "GLOBAL",
+      "target_type": "STORE",
+      "target_id": "ALL",
+      "rule_type": "MANDATORY_DAYS_OFF",
+      "value": 2,
+      "description": "Mandatory 2 Days Off Guarantee: Every worker is guaranteed at least 2 full rest days per week."
+    }
+  ],
+  "local_rules": [],
+  "leave": {},
+  "cap_overrides": {},
+  "rate_overrides": {},
+  "add_staff": [],
+  "inactive_staff": [],
+  "chat_history": [
+    {
+      "sender": "bot",
+      "text": "\ud83d\udc4b Welcome to your Universal AI Rota System! You can add unlimited Global (permanent) and Local (this week only) rules using the dropdowns or chat."
+    }
+  ],
+  "current_roster": {
+    "status": "SUCCESS",
+    "mode": "balanced",
+    "is_pay_week": false,
+    "roster": {
+      "Mon": [
+        {
+          "shift_id": "Mon_Order_Open",
+          "time": "07:00 - 14:00",
+          "desc": "Food Delivery, Stock Ordering & Store Open (07:00 - 14:00)",
+          "assigned_to": "Alex Miller",
+          "role": "General Manager",
+          "pay_tier": "Salaried Manager",
+          "is_salaried": true,
+          "paid_hours": 6.5,
+          "hourly_rate": 0.0,
+          "cost": 0.0
+        },
+        {
+          "shift_id": "Mon_Morn_Kitch_Line",
+          "time": "09:00 - 16:00",
+          "desc": "Morning Kitchen Main Line",
+          "assigned_to": "Pat Evans",
+          "role": "Crew Member",
+          "pay_tier": "Crew Member (\u00a311.44/h)",
+          "is_salaried": false,
+          "paid_hours": 6.5,
+          "hourly_rate": 11.44,
+          "cost": 74.36
+        },
+        {
+          "shift_id": "Mon_Morn_Prep",
+          "time": "09:00 - 14:00",
+          "desc": "Kitchen Prep & Stock",
+          "assigned_to": "Riley Johnson",
+          "role": "Crew Member",
+          "pay_tier": "Crew Member (\u00a311.44/h)",
+          "is_salaried": false,
+          "paid_hours": 5.0,
+          "hourly_rate": 11.44,
+          "cost": 57.2
+        },
+        {
+          "shift_id": "Mon_Eve_FOH_Close",
+          "time": "16:00 - 22:45",
+          "desc": "FOH Closing Manager / Keyholder",
+          "assigned_to": "Casey Smith",
+          "role": "Team Leader",
+          "pay_tier": "Team Leader (\u00a312.50/h)",
+          "is_salaried": false,
+          "paid_hours": 6.25,
+          "hourly_rate": 12.5,
+          "cost": 78.12
+        },
+        {
+          "shift_id": "Mon_Eve_Grill",
+          "time": "16:00 - 22:45",
+          "desc": "Kitchen Grill Master Close",
+          "assigned_to": "Morgan Davis",
+          "role": "Store Trainer",
+          "pay_tier": "Trainer (\u00a312.00/h)",
+          "is_salaried": false,
+          "paid_hours": 6.25,
+          "hourly_rate": 12.0,
+          "cost": 75.0
+        },
+        {
+          "shift_id": "Mon_Eve_Fryers",
+          "time": "16:00 - 22:45",
+          "desc": "Kitchen Fryers & Assembly Close",
+          "assigned_to": "Jamie Wilson",
+          "role": "Crew Member",
+          "pay_tier": "Crew Member (\u00a311.44/h)",
+          "is_salaried": false,
+          "paid_hours": 6.25,
+          "hourly_rate": 11.44,
+          "cost": 71.5
+        },
+        {
+          "shift_id": "Mon_Eve_PartTime_Support",
+          "time": "16:00 - 21:00",
+          "desc": "Evening Dinner Rush Support",
+          "assigned_to": "Chris Murphy",
+          "role": "Crew Member",
+          "pay_tier": "Crew Member (\u00a311.44/h)",
+          "is_salaried": false,
+          "paid_hours": 5.0,
+          "hourly_rate": 11.44,
+          "cost": 57.2
+        }
+      ],
+      "Tue": [
+        {
+          "shift_id": "Tue_Morn_FOH",
+          "time": "09:00 - 16:00",
+          "desc": "Morning FOH Till & Counter",
+          "assigned_to": "Sam Taylor",
+          "role": "Assistant Manager",
+          "pay_tier": "Assistant Manager (\u00a313.50/h)",
+          "is_salaried": false,
+          "paid_hours": 6.5,
+          "hourly_rate": 13.5,
+          "cost": 87.75
+        },
+        {
+          "shift_id": "Tue_Morn_Kitch_Line",
+          "time": "09:00 - 16:00",
+          "desc": "Morning Kitchen Main Line",
+          "assigned_to": "Riley Johnson",
+          "role": "Crew Member",
+          "pay_tier": "Crew Member (\u00a311.44/h)",
+          "is_salaried": false,
+          "paid_hours": 6.5,
+          "hourly_rate": 11.44,
+          "cost": 74.36
+        },
+        {
+          "shift_id": "Tue_Morn_PartTime",
+          "time": "09:00 - 14:00",
+          "desc": "FOH Morning Counter (Part-time)",
+          "assigned_to": "Taylor Reed",
+          "role": "Crew Member",
+          "pay_tier": "Crew Member (\u00a311.44/h)",
+          "is_salaried": false,
+          "paid_hours": 5.0,
+          "hourly_rate": 11.44,
+          "cost": 57.2
+        },
+        {
+          "shift_id": "Tue_Eve_FOH_Close",
+          "time": "16:00 - 22:45",
+          "desc": "FOH Closing Manager / Keyholder",
+          "assigned_to": "Casey Smith",
+          "role": "Team Leader",
+          "pay_tier": "Team Leader (\u00a312.50/h)",
+          "is_salaried": false,
+          "paid_hours": 6.25,
+          "hourly_rate": 12.5,
+          "cost": 78.12
+        },
+        {
+          "shift_id": "Tue_Eve_Grill",
+          "time": "16:00 - 22:45",
+          "desc": "Kitchen Grill Master Close",
+          "assigned_to": "Jordan Lee",
+          "role": "Team Leader",
+          "pay_tier": "Team Leader (\u00a312.80/h)",
+          "is_salaried": false,
+          "paid_hours": 6.25,
+          "hourly_rate": 12.8,
+          "cost": 80.0
+        },
+        {
+          "shift_id": "Tue_Eve_Fryers",
+          "time": "16:00 - 22:45",
+          "desc": "Kitchen Fryers & Assembly Close",
+          "assigned_to": "Alex Miller",
+          "role": "General Manager",
+          "pay_tier": "Salaried Manager",
+          "is_salaried": true,
+          "paid_hours": 6.25,
+          "hourly_rate": 0.0,
+          "cost": 0.0
+        },
+        {
+          "shift_id": "Tue_Eve_PartTime_Support",
+          "time": "16:00 - 21:00",
+          "desc": "Evening Dinner Rush Support",
+          "assigned_to": "Chris Murphy",
+          "role": "Crew Member",
+          "pay_tier": "Crew Member (\u00a311.44/h)",
+          "is_salaried": false,
+          "paid_hours": 5.0,
+          "hourly_rate": 11.44,
+          "cost": 57.2
+        }
+      ],
+      "Wed": [
+        {
+          "shift_id": "Wed_Morn_FOH",
+          "time": "09:00 - 16:00",
+          "desc": "Morning FOH Till & Counter",
+          "assigned_to": "Sam Taylor",
+          "role": "Assistant Manager",
+          "pay_tier": "Assistant Manager (\u00a313.50/h)",
+          "is_salaried": false,
+          "paid_hours": 6.5,
+          "hourly_rate": 13.5,
+          "cost": 87.75
+        },
+        {
+          "shift_id": "Wed_Morn_Kitch_Line",
+          "time": "09:00 - 16:00",
+          "desc": "Morning Kitchen Main Line",
+          "assigned_to": "Riley Johnson",
+          "role": "Crew Member",
+          "pay_tier": "Crew Member (\u00a311.44/h)",
+          "is_salaried": false,
+          "paid_hours": 6.5,
+          "hourly_rate": 11.44,
+          "cost": 74.36
+        },
+        {
+          "shift_id": "Wed_Morn_PartTime",
+          "time": "09:00 - 14:00",
+          "desc": "FOH Morning Counter (Part-time)",
+          "assigned_to": "Taylor Reed",
+          "role": "Crew Member",
+          "pay_tier": "Crew Member (\u00a311.44/h)",
+          "is_salaried": false,
+          "paid_hours": 5.0,
+          "hourly_rate": 11.44,
+          "cost": 57.2
+        },
+        {
+          "shift_id": "Wed_Trainer_Mid",
+          "time": "14:00 - 22:45",
+          "desc": "Afternoon Line & Grill Master Close",
+          "assigned_to": "Jordan Lee",
+          "role": "Team Leader",
+          "pay_tier": "Team Leader (\u00a312.80/h)",
+          "is_salaried": false,
+          "paid_hours": 8.25,
+          "hourly_rate": 12.8,
+          "cost": 105.6
+        },
+        {
+          "shift_id": "Wed_Eve_FOH_Close",
+          "time": "16:00 - 22:45",
+          "desc": "FOH Closing Manager / Keyholder",
+          "assigned_to": "Casey Smith",
+          "role": "Team Leader",
+          "pay_tier": "Team Leader (\u00a312.50/h)",
+          "is_salaried": false,
+          "paid_hours": 6.25,
+          "hourly_rate": 12.5,
+          "cost": 78.12
+        },
+        {
+          "shift_id": "Wed_Eve_Grill",
+          "time": "16:00 - 22:45",
+          "desc": "Kitchen Grill Master Close",
+          "assigned_to": "Morgan Davis",
+          "role": "Store Trainer",
+          "pay_tier": "Trainer (\u00a312.00/h)",
+          "is_salaried": false,
+          "paid_hours": 6.25,
+          "hourly_rate": 12.0,
+          "cost": 75.0
+        },
+        {
+          "shift_id": "Wed_Eve_Fryers",
+          "time": "16:00 - 22:45",
+          "desc": "Kitchen Fryers & Assembly Close",
+          "assigned_to": "Pat Evans",
+          "role": "Crew Member",
+          "pay_tier": "Crew Member (\u00a311.44/h)",
+          "is_salaried": false,
+          "paid_hours": 6.25,
+          "hourly_rate": 11.44,
+          "cost": 71.5
+        },
+        {
+          "shift_id": "Wed_Eve_PartTime_Support",
+          "time": "16:00 - 21:00",
+          "desc": "Evening Dinner Rush Support",
+          "assigned_to": "Chris Murphy",
+          "role": "Crew Member",
+          "pay_tier": "Crew Member (\u00a311.44/h)",
+          "is_salaried": false,
+          "paid_hours": 5.0,
+          "hourly_rate": 11.44,
+          "cost": 57.2
+        }
+      ],
+      "Thu": [
+        {
+          "shift_id": "Thu_Morn_FOH",
+          "time": "09:00 - 16:00",
+          "desc": "Morning FOH Till & Counter",
+          "assigned_to": "Casey Smith",
+          "role": "Team Leader",
+          "pay_tier": "Team Leader (\u00a312.50/h)",
+          "is_salaried": false,
+          "paid_hours": 6.5,
+          "hourly_rate": 12.5,
+          "cost": 81.25
+        },
+        {
+          "shift_id": "Thu_Morn_Kitch_Line",
+          "time": "09:00 - 16:00",
+          "desc": "Morning Kitchen Main Line",
+          "assigned_to": "Pat Evans",
+          "role": "Crew Member",
+          "pay_tier": "Crew Member (\u00a311.44/h)",
+          "is_salaried": false,
+          "paid_hours": 6.5,
+          "hourly_rate": 11.44,
+          "cost": 74.36
+        },
+        {
+          "shift_id": "Thu_Morn_PartTime",
+          "time": "09:00 - 14:00",
+          "desc": "FOH Morning Counter (Part-time)",
+          "assigned_to": "Taylor Reed",
+          "role": "Crew Member",
+          "pay_tier": "Crew Member (\u00a311.44/h)",
+          "is_salaried": false,
+          "paid_hours": 5.0,
+          "hourly_rate": 11.44,
+          "cost": 57.2
+        },
+        {
+          "shift_id": "Thu_Trainer_Mid",
+          "time": "14:00 - 22:45",
+          "desc": "Afternoon Line & Grill Master Close",
+          "assigned_to": "Alex Miller",
+          "role": "General Manager",
+          "pay_tier": "Salaried Manager",
+          "is_salaried": true,
+          "paid_hours": 8.25,
+          "hourly_rate": 0.0,
+          "cost": 0.0
+        },
+        {
+          "shift_id": "Thu_Eve_FOH_Close",
+          "time": "16:00 - 22:45",
+          "desc": "FOH Closing Manager / Keyholder",
+          "assigned_to": "Sam Taylor",
+          "role": "Assistant Manager",
+          "pay_tier": "Assistant Manager (\u00a313.50/h)",
+          "is_salaried": false,
+          "paid_hours": 6.25,
+          "hourly_rate": 13.5,
+          "cost": 84.38
+        },
+        {
+          "shift_id": "Thu_Eve_Grill",
+          "time": "16:00 - 22:45",
+          "desc": "Kitchen Grill Master Close",
+          "assigned_to": "Morgan Davis",
+          "role": "Store Trainer",
+          "pay_tier": "Trainer (\u00a312.00/h)",
+          "is_salaried": false,
+          "paid_hours": 6.25,
+          "hourly_rate": 12.0,
+          "cost": 75.0
+        },
+        {
+          "shift_id": "Thu_Eve_Fryers",
+          "time": "16:00 - 22:45",
+          "desc": "Kitchen Fryers & Assembly Close",
+          "assigned_to": "Jamie Wilson",
+          "role": "Crew Member",
+          "pay_tier": "Crew Member (\u00a311.44/h)",
+          "is_salaried": false,
+          "paid_hours": 6.25,
+          "hourly_rate": 11.44,
+          "cost": 71.5
+        },
+        {
+          "shift_id": "Thu_Eve_PartTime_Support",
+          "time": "16:00 - 21:00",
+          "desc": "Evening Dinner Rush Support",
+          "assigned_to": "Chris Murphy",
+          "role": "Crew Member",
+          "pay_tier": "Crew Member (\u00a311.44/h)",
+          "is_salaried": false,
+          "paid_hours": 5.0,
+          "hourly_rate": 11.44,
+          "cost": 57.2
+        }
+      ],
+      "Fri": [
+        {
+          "shift_id": "Fri_Morn_FOH",
+          "time": "09:00 - 16:00",
+          "desc": "Morning FOH Till & Counter",
+          "assigned_to": "Drew Clark",
+          "role": "Crew Member",
+          "pay_tier": "Crew Member (\u00a311.44/h)",
+          "is_salaried": false,
+          "paid_hours": 6.5,
+          "hourly_rate": 11.44,
+          "cost": 74.36
+        },
+        {
+          "shift_id": "Fri_Morn_Kitch_Line",
+          "time": "09:00 - 16:00",
+          "desc": "Morning Kitchen Main Line",
+          "assigned_to": "Cameron Bailey",
+          "role": "Crew Member",
+          "pay_tier": "Crew Member (\u00a311.44/h)",
+          "is_salaried": false,
+          "paid_hours": 6.5,
+          "hourly_rate": 11.44,
+          "cost": 74.36
+        },
+        {
+          "shift_id": "Fri_Morn_PartTime",
+          "time": "09:00 - 14:00",
+          "desc": "FOH Morning Counter (Part-time)",
+          "assigned_to": "Taylor Reed",
+          "role": "Crew Member",
+          "pay_tier": "Crew Member (\u00a311.44/h)",
+          "is_salaried": false,
+          "paid_hours": 5.0,
+          "hourly_rate": 11.44,
+          "cost": 57.2
+        },
+        {
+          "shift_id": "Fri_Mid_Kitch",
+          "time": "12:00 - 23:30",
+          "desc": "Busy Mid-Day Kitchen Anchor till Close",
+          "assigned_to": "Alex Miller",
+          "role": "General Manager",
+          "pay_tier": "Salaried Manager",
+          "is_salaried": true,
+          "paid_hours": 10.5,
+          "hourly_rate": 0.0,
+          "cost": 0.0
+        },
+        {
+          "shift_id": "Fri_Eve_FOH_Close",
+          "time": "16:00 - 23:30",
+          "desc": "FOH Closing Manager / Keyholder",
+          "assigned_to": "Sam Taylor",
+          "role": "Assistant Manager",
+          "pay_tier": "Assistant Manager (\u00a313.50/h)",
+          "is_salaried": false,
+          "paid_hours": 7.0,
+          "hourly_rate": 13.5,
+          "cost": 94.5
+        },
+        {
+          "shift_id": "Fri_Eve_Grill",
+          "time": "16:00 - 23:30",
+          "desc": "Kitchen Grill Master Close",
+          "assigned_to": "Morgan Davis",
+          "role": "Store Trainer",
+          "pay_tier": "Trainer (\u00a312.00/h)",
+          "is_salaried": false,
+          "paid_hours": 7.0,
+          "hourly_rate": 12.0,
+          "cost": 84.0
+        },
+        {
+          "shift_id": "Fri_Eve_Fryers",
+          "time": "16:00 - 23:30",
+          "desc": "Kitchen Fryers & Assembly Close",
+          "assigned_to": "Jordan Lee",
+          "role": "Team Leader",
+          "pay_tier": "Team Leader (\u00a312.80/h)",
+          "is_salaried": false,
+          "paid_hours": 7.0,
+          "hourly_rate": 12.8,
+          "cost": 89.6
+        },
+        {
+          "shift_id": "Fri_Eve_Sets_Rush",
+          "time": "17:00 - 22:30",
+          "desc": "Kitchen Sets Peak Trade Support",
+          "assigned_to": "Skyler White",
+          "role": "Crew Member",
+          "pay_tier": "Crew Member (\u00a311.44/h)",
+          "is_salaried": false,
+          "paid_hours": 5.5,
+          "hourly_rate": 11.44,
+          "cost": 62.92
+        },
+        {
+          "shift_id": "Fri_Eve_Shakes_Expo",
+          "time": "17:00 - 22:30",
+          "desc": "FOH Shakes, Till & Expo Break Cover",
+          "assigned_to": "Rowan Brooks",
+          "role": "Crew Member",
+          "pay_tier": "Crew Member (\u00a311.44/h)",
+          "is_salaried": false,
+          "paid_hours": 5.5,
+          "hourly_rate": 11.44,
+          "cost": 62.92
+        }
+      ],
+      "Sat": [
+        {
+          "shift_id": "Sat_Morn_FOH",
+          "time": "09:00 - 16:00",
+          "desc": "Morning FOH Till & Counter",
+          "assigned_to": "Rowan Brooks",
+          "role": "Crew Member",
+          "pay_tier": "Crew Member (\u00a311.44/h)",
+          "is_salaried": false,
+          "paid_hours": 6.5,
+          "hourly_rate": 11.44,
+          "cost": 74.36
+        },
+        {
+          "shift_id": "Sat_Morn_Kitch_Line",
+          "time": "09:00 - 16:00",
+          "desc": "Morning Kitchen Main Line",
+          "assigned_to": "Cameron Bailey",
+          "role": "Crew Member",
+          "pay_tier": "Crew Member (\u00a311.44/h)",
+          "is_salaried": false,
+          "paid_hours": 6.5,
+          "hourly_rate": 11.44,
+          "cost": 74.36
+        },
+        {
+          "shift_id": "Sat_Morn_Prep",
+          "time": "09:00 - 14:00",
+          "desc": "Kitchen Prep & Stock",
+          "assigned_to": "Skyler White",
+          "role": "Crew Member",
+          "pay_tier": "Crew Member (\u00a311.44/h)",
+          "is_salaried": false,
+          "paid_hours": 5.0,
+          "hourly_rate": 11.44,
+          "cost": 57.2
+        },
+        {
+          "shift_id": "Sat_Mid_Kitch",
+          "time": "12:00 - 23:30",
+          "desc": "Busy Mid-Day Kitchen Anchor till Close",
+          "assigned_to": "Alex Miller",
+          "role": "General Manager",
+          "pay_tier": "Salaried Manager",
+          "is_salaried": true,
+          "paid_hours": 10.5,
+          "hourly_rate": 0.0,
+          "cost": 0.0
+        },
+        {
+          "shift_id": "Sat_Eve_FOH_Close",
+          "time": "16:00 - 23:30",
+          "desc": "FOH Closing Manager / Keyholder",
+          "assigned_to": "Sam Taylor",
+          "role": "Assistant Manager",
+          "pay_tier": "Assistant Manager (\u00a313.50/h)",
+          "is_salaried": false,
+          "paid_hours": 7.0,
+          "hourly_rate": 13.5,
+          "cost": 94.5
+        },
+        {
+          "shift_id": "Sat_Eve_Grill",
+          "time": "16:00 - 23:30",
+          "desc": "Kitchen Grill Master Close",
+          "assigned_to": "Morgan Davis",
+          "role": "Store Trainer",
+          "pay_tier": "Trainer (\u00a312.00/h)",
+          "is_salaried": false,
+          "paid_hours": 7.0,
+          "hourly_rate": 12.0,
+          "cost": 84.0
+        },
+        {
+          "shift_id": "Sat_Eve_Fryers",
+          "time": "16:00 - 23:30",
+          "desc": "Kitchen Fryers & Assembly Close",
+          "assigned_to": "Jordan Lee",
+          "role": "Team Leader",
+          "pay_tier": "Team Leader (\u00a312.80/h)",
+          "is_salaried": false,
+          "paid_hours": 7.0,
+          "hourly_rate": 12.8,
+          "cost": 89.6
+        },
+        {
+          "shift_id": "Sat_Eve_Sets_Rush",
+          "time": "17:00 - 22:30",
+          "desc": "Kitchen Sets Peak Trade Support",
+          "assigned_to": "Riley Johnson",
+          "role": "Crew Member",
+          "pay_tier": "Crew Member (\u00a311.44/h)",
+          "is_salaried": false,
+          "paid_hours": 5.5,
+          "hourly_rate": 11.44,
+          "cost": 62.92
+        },
+        {
+          "shift_id": "Sat_Eve_Shakes_Expo",
+          "time": "17:00 - 22:30",
+          "desc": "FOH Shakes, Till & Expo Break Cover",
+          "assigned_to": "Drew Clark",
+          "role": "Crew Member",
+          "pay_tier": "Crew Member (\u00a311.44/h)",
+          "is_salaried": false,
+          "paid_hours": 5.5,
+          "hourly_rate": 11.44,
+          "cost": 62.92
+        }
+      ],
+      "Sun": [
+        {
+          "shift_id": "Sun_Morn_FOH",
+          "time": "09:00 - 16:00",
+          "desc": "Morning FOH Till & Counter",
+          "assigned_to": "Avery Cooper",
+          "role": "Crew Member",
+          "pay_tier": "Crew Member (\u00a311.44/h)",
+          "is_salaried": false,
+          "paid_hours": 6.5,
+          "hourly_rate": 11.44,
+          "cost": 74.36
+        },
+        {
+          "shift_id": "Sun_Morn_Kitch_Line",
+          "time": "09:00 - 16:00",
+          "desc": "Morning Kitchen Main Line",
+          "assigned_to": "Jordan Lee",
+          "role": "Team Leader",
+          "pay_tier": "Team Leader (\u00a312.80/h)",
+          "is_salaried": false,
+          "paid_hours": 6.5,
+          "hourly_rate": 12.8,
+          "cost": 83.2
+        },
+        {
+          "shift_id": "Sun_Morn_Prep",
+          "time": "09:00 - 14:00",
+          "desc": "Kitchen Prep & Stock",
+          "assigned_to": "Skyler White",
+          "role": "Crew Member",
+          "pay_tier": "Crew Member (\u00a311.44/h)",
+          "is_salaried": false,
+          "paid_hours": 5.0,
+          "hourly_rate": 11.44,
+          "cost": 57.2
+        },
+        {
+          "shift_id": "Sun_Eve_FOH_Close",
+          "time": "16:00 - 22:45",
+          "desc": "FOH Closing Manager / Keyholder",
+          "assigned_to": "Casey Smith",
+          "role": "Team Leader",
+          "pay_tier": "Team Leader (\u00a312.50/h)",
+          "is_salaried": false,
+          "paid_hours": 6.25,
+          "hourly_rate": 12.5,
+          "cost": 78.12
+        },
+        {
+          "shift_id": "Sun_Eve_Grill",
+          "time": "16:00 - 22:45",
+          "desc": "Kitchen Grill Master Close",
+          "assigned_to": "Riley Johnson",
+          "role": "Crew Member",
+          "pay_tier": "Crew Member (\u00a311.44/h)",
+          "is_salaried": false,
+          "paid_hours": 6.25,
+          "hourly_rate": 11.44,
+          "cost": 71.5
+        },
+        {
+          "shift_id": "Sun_Eve_Fryers",
+          "time": "16:00 - 22:45",
+          "desc": "Kitchen Fryers & Assembly Close",
+          "assigned_to": "Jamie Wilson",
+          "role": "Crew Member",
+          "pay_tier": "Crew Member (\u00a311.44/h)",
+          "is_salaried": false,
+          "paid_hours": 6.25,
+          "hourly_rate": 11.44,
+          "cost": 71.5
+        },
+        {
+          "shift_id": "Sun_Eve_PartTime_Support",
+          "time": "16:00 - 21:00",
+          "desc": "Evening Dinner Rush Support",
+          "assigned_to": "Taylor Reed",
+          "role": "Crew Member",
+          "pay_tier": "Crew Member (\u00a311.44/h)",
+          "is_salaried": false,
+          "paid_hours": 5.0,
+          "hourly_rate": 11.44,
+          "cost": 57.2
+        }
+      ]
+    },
+    "total_hours": 346.25,
+    "variable_payroll": 3648.43,
+    "weekly_budget": 4000.0,
+    "budget_remaining": 351.57,
+    "staff_hours": {
+      "Alex Miller": 42.0,
+      "Sam Taylor": 33.25,
+      "Jordan Lee": 35.0,
+      "Casey Smith": 31.5,
+      "Morgan Davis": 32.75,
+      "Riley Johnson": 29.75,
+      "Taylor Reed": 25.0,
+      "Jamie Wilson": 18.75,
+      "Chris Murphy": 20.0,
+      "Pat Evans": 19.25,
+      "Drew Clark": 12.0,
+      "Skyler White": 15.5,
+      "Rowan Brooks": 12.0,
+      "Cameron Bailey": 13.0,
+      "Avery Cooper": 6.5
+    },
+    "staff_costs": {
+      "Sam Taylor": 448.88,
+      "Jordan Lee": 448.0,
+      "Casey Smith": 393.73,
+      "Morgan Davis": 393.0,
+      "Riley Johnson": 340.34,
+      "Taylor Reed": 286.0,
+      "Jamie Wilson": 214.5,
+      "Chris Murphy": 228.8,
+      "Pat Evans": 220.22,
+      "Drew Clark": 137.28,
+      "Skyler White": 177.32,
+      "Rowan Brooks": 137.28,
+      "Cameron Bailey": 148.72,
+      "Avery Cooper": 74.36
+    },
+    "days_worked": {
+      "Alex Miller": 5,
+      "Sam Taylor": 5,
+      "Jordan Lee": 5,
+      "Casey Smith": 5,
+      "Morgan Davis": 5,
+      "Riley Johnson": 5,
+      "Taylor Reed": 5,
+      "Jamie Wilson": 3,
+      "Chris Murphy": 4,
+      "Pat Evans": 3,
+      "Drew Clark": 2,
+      "Skyler White": 3,
+      "Rowan Brooks": 2,
+      "Cameron Bailey": 2,
+      "Avery Cooper": 1
+    },
+    "days_off": {
+      "Alex Miller": [
+        "Wed",
+        "Sun"
+      ],
+      "Sam Taylor": [
+        "Mon",
+        "Sun"
+      ],
+      "Jordan Lee": [
+        "Mon",
+        "Thu"
+      ],
+      "Casey Smith": [
+        "Fri",
+        "Sat"
+      ],
+      "Morgan Davis": [
+        "Tue",
+        "Sun"
+      ],
+      "Riley Johnson": [
+        "Thu",
+        "Fri"
+      ],
+      "Taylor Reed": [
+        "Mon",
+        "Sat"
+      ],
+      "Jamie Wilson": [
+        "Tue",
+        "Wed",
+        "Fri",
+        "Sat"
+      ],
+      "Chris Murphy": [
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "Pat Evans": [
+        "Tue",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "Drew Clark": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Sun"
+      ],
+      "Skyler White": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu"
+      ],
+      "Rowan Brooks": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Sun"
+      ],
+      "Cameron Bailey": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Sun"
+      ],
+      "Avery Cooper": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat"
+      ]
+    }
+  }
+}
