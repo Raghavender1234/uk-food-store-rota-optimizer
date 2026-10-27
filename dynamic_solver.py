@@ -15,9 +15,10 @@ DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 # DYNAMIC SHIFT BUILDER
 # ==============================================================================
 
-def build_shifts_for_store(store_hours: Dict[str, Any], is_pay_week: bool = False) -> List[Dict[str, Any]]:
+def build_shifts_for_store(store_hours: Dict[str, Any], is_pay_week: bool = False, surge_rules: Optional[List[Dict[str, Any]]] = None) -> List[Dict[str, Any]]:
     """
     Builds the operational shift slots from the store's configured opening hours.
+    Supports dynamic local event surges (e.g. MK Stadium matches, concerts, peak rushes).
     """
     shifts = []
     
@@ -216,6 +217,45 @@ def build_shifts_for_store(store_hours: Dict[str, Any], is_pay_week: bool = Fals
                 "desc": "Evening Dinner Rush Support"
             })
 
+        # 5. Local Event Demand Surge (e.g. MK Stadium Match, Concerts, Friday/Saturday Rush)
+        if surge_rules:
+            for rule in surge_rules:
+                r_days = rule.get("days", [])
+                if isinstance(r_days, str):
+                    r_days = [r_days]
+                r_days = [d.capitalize()[:3] for d in r_days]
+                if day in r_days:
+                    depts = rule.get("depts", ["FOH", "Kitchen"])
+                    count = int(rule.get("extra_count", 1))
+                    reason = rule.get("reason", "Event Demand Surge")
+                    for i in range(count):
+                        if "FOH" in depts:
+                            shifts.append({
+                                "id": f"{day}_Match_Surge_FOH_{i+1}",
+                                "day": day,
+                                "time": "17:00 - 22:30",
+                                "start": "17:00",
+                                "finish": "22:30",
+                                "paid_hours": 5.5,
+                                "dept": "FOH",
+                                "req_skill": "FOH",
+                                "requires_keyholder": False,
+                                "desc": f"{reason} - Extra FOH Match Crowd Till & Expediter"
+                            })
+                        if "Kitchen" in depts:
+                            shifts.append({
+                                "id": f"{day}_Match_Surge_Kitch_{i+1}",
+                                "day": day,
+                                "time": "16:30 - 22:30",
+                                "start": "16:30",
+                                "finish": "22:30",
+                                "paid_hours": 5.5,
+                                "dept": "Kitchen",
+                                "req_skill": "Fryers",
+                                "requires_keyholder": False,
+                                "desc": f"{reason} - Extra Kitchen Match Rush Line Support"
+                            })
+
     return shifts
 
 # ==============================================================================
@@ -250,8 +290,10 @@ def solve_universal_rota(
         if s["id"] in cap_overrides:
             s["manager_weekly_cap"] = cap_overrides[s["id"]]
 
-    # 4. Build shifts
-    shifts = build_shifts_for_store(store_hours, is_pay_week=is_pay_week)
+    # 4. Extract event surge rules and build shifts
+    all_rules_pre = list(global_rules) + list(weekly_rules.get("local_rules", []))
+    surge_rules = [r for r in all_rules_pre if r.get("rule_type") in ["EVENT_SURGE", "MATCH_SURGE", "SURGE_STAFF"]]
+    shifts = build_shifts_for_store(store_hours, is_pay_week=is_pay_week, surge_rules=surge_rules)
 
     model = cp_model.CpModel()
     
@@ -328,6 +370,35 @@ def solve_universal_rota(
             "value": days_off,
             "description": f"Leave: {staff_id} off on {days_off}"
         })
+
+    # Pre-scan for manager specific assignments to exempt from general blocks
+    must_work_map = set()   # (worker_id, day_lower)
+    morn_exempt_map = set() # (worker_id, day_lower)
+    peak_exempt_map = set() # (worker_id, day_lower)
+
+    for rule in all_rules:
+        r_type = rule.get("rule_type")
+        tid = rule.get("target_id")
+        r_days = rule.get("days") or rule.get("value")
+        if isinstance(r_days, (int, float)):
+            r_days = []
+        elif isinstance(r_days, str):
+            r_days = [r_days]
+        if not r_days:
+            r_days = DAYS
+        day_tokens = [str(d).strip().lower()[:3] for d in r_days if str(d).strip()]
+
+        if r_type in ["MUST_WORK_DAYS", "LOCKED_DAYS", "WORKS_ON_DAYS"]:
+            for d in day_tokens:
+                must_work_map.add((tid, d))
+        elif r_type in ["REQUIRE_MORNING_HOURS", "MORNING_HOURS"]:
+            for d in day_tokens:
+                morn_exempt_map.add((tid, d))
+                must_work_map.add((tid, d))
+        elif r_type in ["REQUIRE_PEAK_HOURS", "PEAK_HOURS"]:
+            for d in day_tokens:
+                peak_exempt_map.add((tid, d))
+                must_work_map.add((tid, d))
 
     for rule in all_rules:
         target_type = rule.get("target_type")
@@ -455,15 +526,18 @@ def solve_universal_rota(
             for w_idx, w in enumerate(active_staff):
                 if w["id"] == target_id or target_id == "ALL":
                     for s_idx, s in enumerate(shifts):
+                        s_day = s["day"].lower()[:3]
                         time_str = s.get("time", "").lower()
                         desc = s.get("desc", "").lower()
                         is_morn = any(m in time_str for m in ["07:00", "09:00", "10:00", "11:00", "12:00"]) or "morn" in s["id"].lower() or "prep" in desc
                         is_close = any(late in time_str for late in ["22:45", "23:00", "23:30"]) or "close" in desc
                         
                         if "morning" in blocked_types and is_morn:
-                            model.Add(x[s_idx, w_idx] == 0)
+                            if (w["id"], s_day) not in morn_exempt_map:
+                                model.Add(x[s_idx, w_idx] == 0)
                         if "close" in blocked_types and is_close:
-                            model.Add(x[s_idx, w_idx] == 0)
+                            if (w["id"], s_day) not in peak_exempt_map:
+                                model.Add(x[s_idx, w_idx] == 0)
 
         # RULE: BLOCKED SPECIFIC DAYS (e.g. No Tue, No Sun, or blocked days)
         elif rule_type == "BLOCKED_DAYS":
@@ -475,8 +549,10 @@ def solve_universal_rota(
             for w_idx, w in enumerate(active_staff):
                 if w["id"] == target_id or target_id == "ALL":
                     for s_idx, s in enumerate(shifts):
-                        if s["day"].lower()[:3] in raw_list:
-                            model.Add(x[s_idx, w_idx] == 0)
+                        s_day = s["day"].lower()[:3]
+                        if s_day in raw_list:
+                            if (w["id"], s_day) not in must_work_map:
+                                model.Add(x[s_idx, w_idx] == 0)
 
         # RULE: WORKS ONLY SPECIFIC DAYS (e.g. Works only on Sundays)
         elif rule_type in ["WORKS_ONLY_DAYS", "ALLOWED_DAYS"]:
@@ -488,8 +564,10 @@ def solve_universal_rota(
             for w_idx, w in enumerate(active_staff):
                 if w["id"] == target_id or target_id == "ALL":
                     for s_idx, s in enumerate(shifts):
-                        if s["day"].lower()[:3] not in allowed_list:
-                            model.Add(x[s_idx, w_idx] == 0)
+                        s_day = s["day"].lower()[:3]
+                        if s_day not in allowed_list:
+                            if (w["id"], s_day) not in must_work_map:
+                                model.Add(x[s_idx, w_idx] == 0)
 
         # RULE: SPECIFIC STATION LOCK (e.g. Grill Only, FOH Only)
         elif rule_type in ["STATION_LOCK", "ONLY_STATION"]:

@@ -226,6 +226,70 @@ def parse_user_message(text: str, current_state: Dict[str, Any]) -> Tuple[str, D
         badge = "🔒 Global Boundary (Permanent)" if chosen_scope == "GLOBAL" else "⚡ Local Boundary (This Week Only)"
         return f"{badge}: **{new_rule['description']}** has been enforced. Re-optimizing rota...", state, True
 
+    # 1.5 EVENT DEMAND SURGE / MK STADIUM MATCH / EXTRA HEADCOUNT
+    is_surge = any(kw in lower for kw in [
+        "match", "stadium", "mk stadium", "game", "concert", "event",
+        "more people", "extra people", "more staff", "extra staff",
+        "boost staff", "surge", "busy night", "heavy trade", "crowd"
+    ])
+    if is_surge:
+        # Extract days
+        surge_days = []
+        for day_code, pat in DAY_PATTERNS.items():
+            if re.search(pat, lower):
+                surge_days.append(day_code)
+        if not surge_days:
+            if "weekend" in lower:
+                surge_days = ["Fri", "Sat", "Sun"]
+            elif "friday" in lower or "fri" in lower:
+                surge_days = ["Fri"]
+            else:
+                surge_days = ["Fri", "Sat"]
+
+        # Extract departments
+        surge_depts = []
+        if any(w in lower for w in ["foh", "front", "counter", "till"]):
+            surge_depts.append("FOH")
+        if any(w in lower for w in ["kitchen", "kitch", "back", "line", "grill"]):
+            surge_depts.append("Kitchen")
+        if not surge_depts:
+            surge_depts = ["FOH", "Kitchen"]
+
+        # Extract extra count per dept (e.g. "2 more people", default 1)
+        cnt_match = re.search(r'(\d+)\s*(?:more|extra)\s*(?:people|staff|workers)?', lower)
+        extra_count = int(cnt_match.group(1)) if cnt_match else 1
+
+        reason = "MK Stadium Match Surge" if any(w in lower for w in ["stadium", "match", "game"]) else "Event Demand Surge"
+        chosen_scope = scope or "LOCAL"
+        target_list = state["global_rules"] if chosen_scope == "GLOBAL" else state["local_rules"]
+
+        # Remove previous matching surge rule to prevent duplicate accumulation
+        target_list[:] = [r for r in target_list if not (r.get("rule_type") == "EVENT_SURGE" and any(d in r.get("days", []) for d in surge_days))]
+
+        new_rule = {
+            "id": f"rule_{chosen_scope.lower()}_event_surge_{len(target_list)+1}",
+            "scope": chosen_scope,
+            "target_type": "STORE",
+            "target_id": "STORE",
+            "rule_type": "EVENT_SURGE",
+            "days": surge_days,
+            "depts": surge_depts,
+            "extra_count": extra_count,
+            "reason": reason,
+            "description": f"{reason} on {', '.join(surge_days)}: Injects extra {extra_count} peak shift(s) for {', '.join(surge_depts)}."
+        }
+        target_list.append(new_rule)
+        badge = "🔒 Global Boundary" if chosen_scope == "GLOBAL" else "⚡ Local Boundary (This Week Only)"
+        days_str = ", ".join(surge_days)
+        depts_str = " & ".join(surge_depts)
+        return (
+            f"{badge}: **{reason}** activated for **{days_str}**!\n"
+            f"• Injected extra peak-trade shifts for **{depts_str}** (16:30–22:30).\n"
+            f"• Team members will be scheduled specifically to power through stadium crowd volume while strictly maintaining UK break regulations and budget limits.",
+            state,
+            True
+        )
+
     # 2. LABOR BUDGET COMMAND
     budget_match = re.search(r'(?:set\s+)?(?:labor\s+)?budget\s+(?:to\s+)?(?:£\s*)?(\d[\d,\.]+)', lower) or re.search(r'spend\s+(?:max\s+)?(?:on\s+labor\s+)?(?:to\s+)?(?:£\s*)?(\d[\d,\.]+)', lower)
     if budget_match:
@@ -375,8 +439,25 @@ def parse_user_message(text: str, current_state: Dict[str, Any]) -> Tuple[str, D
         if days and (has_time_or_period or is_sched_intent):
             added_descs = []
 
+            # Clean conflicting blocked days / shifts across both global and local rules
+            for r_list in [state.get("global_rules", []), state.get("local_rules", [])]:
+                for r in r_list:
+                    if r.get("target_id") == sid:
+                        if r.get("rule_type") == "BLOCKED_DAYS":
+                            val = r.get("value", [])
+                            if isinstance(val, list):
+                                r["value"] = [d for d in val if d not in days]
+                            elif isinstance(val, str) and val in days:
+                                r["value"] = []
+                        elif r.get("rule_type") == "BLOCKED_SHIFTS":
+                            if is_morn and "Morning" in (r.get("value") or []):
+                                r["value"] = [v for v in r.get("value") if v != "Morning"]
+                            if (is_peak or is_close) and "Close" in (r.get("value") or []):
+                                r["value"] = [v for v in r.get("value") if v != "Close"]
+                r_list[:] = [r for r in r_list if r.get("value") != []]
+
             # 1. Mandatory Work Day Guarantee
-            target_rule_list[:] = [r for r in target_rule_list if not (r.get("target_id") == sid and r.get("rule_type") == "BLOCKED_DAYS" and any(d in r.get("value", []) for d in days))]
+            target_rule_list[:] = [r for r in target_rule_list if not (r.get("target_id") == sid and r.get("rule_type") == "MUST_WORK_DAYS")]
             must_work_rule = {
                 "id": f"rule_{chosen_scope.lower()}_{sid}_must_work_{len(target_rule_list)+1}",
                 "scope": chosen_scope,
