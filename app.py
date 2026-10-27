@@ -973,7 +973,7 @@ HTML_TEMPLATE = """
           </div>
           <div class="form-group" id="staffRateBox">
             <label>Hourly Wage Rate (£):</label>
-            <input type="number" step="0.01" id="staffRateInput" class="form-control" value="11.44" />
+            <input type="number" step="0.01" id="staffRateInput" class="form-control" value="12.71" />
           </div>
           <div class="form-group">
             <label>Manager Weekly Hours Cap:</label>
@@ -1484,7 +1484,7 @@ HTML_TEMPLATE = """
             rolePillClass = 'pill salaried';
           }
 
-          let costStr = s.is_salaried ? '<span style="color:#34d399; font-weight:700;">Salaried (£0.00)</span>' : `£${s.cost ? s.cost.toFixed(2) : (s.paid_hours * 11.44).toFixed(2)}`;
+          let costStr = s.is_salaried ? '<span style="color:#34d399; font-weight:700;">Salaried (£0.00)</span>' : `£${s.cost ? s.cost.toFixed(2) : (s.paid_hours * 12.71).toFixed(2)}`;
 
           shiftsHtml += `
             <div class="shift-card" data-worker="${s.assigned_to}">
@@ -1653,7 +1653,7 @@ HTML_TEMPLATE = """
       tbody.innerHTML = '';
       (state.staff_list || []).forEach(w => {
         const tr = document.createElement('tr');
-        const payStr = w.is_salaried ? '<span class="pill salaried">Salaried (£0.00)</span>' : `£${w.hourly_rate ? w.hourly_rate.toFixed(2) : '11.44'}/hr`;
+        const payStr = w.is_salaried ? '<span class="pill salaried">Salaried (£0.00)</span>' : `£${w.hourly_rate ? w.hourly_rate.toFixed(2) : '12.71'}/hr`;
         tr.innerHTML = `
           <td><strong>${w.name}</strong></td>
           <td>${w.role}</td>
@@ -1676,7 +1676,7 @@ HTML_TEMPLATE = """
       document.getElementById('staffNameInput').value = worker.name;
       document.getElementById('staffRoleInput').value = worker.role;
       document.getElementById('staffPayTypeInput').value = worker.is_salaried ? 'salaried' : 'hourly';
-      document.getElementById('staffRateInput').value = worker.hourly_rate || 11.44;
+      document.getElementById('staffRateInput').value = worker.hourly_rate || 12.71;
       document.getElementById('staffCapInput').value = worker.manager_weekly_cap || 20.0;
       document.getElementById('staffSkillsInput').value = (worker.skills || []).join(', ');
       togglePayInputs();
@@ -2142,7 +2142,7 @@ def export_csv():
                 s.get("role", ""),
                 s.get("assigned_to", ""),
                 s.get("desc", ""),
-                "Salaried (£0.00)" if s.get("is_salaried") else f"£{s.get('hourly_rate', 11.44):.2f}",
+                "Salaried (£0.00)" if s.get("is_salaried") else f"£{s.get('hourly_rate', 12.71):.2f}",
                 "£0.00" if s.get("is_salaried") else f"£{s.get('cost', 0):.2f}"
             ])
             

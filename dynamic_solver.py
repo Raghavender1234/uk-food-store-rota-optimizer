@@ -642,7 +642,7 @@ def solve_universal_rota(
     if weekly_budget is not None and weekly_budget > 0:
         budget_pence = int(weekly_budget * 100)
         total_cost_pence = sum(
-            int(shifts[s_idx]["paid_hours"] * (0.0 if active_staff[w_idx].get("is_salaried") else active_staff[w_idx].get("hourly_rate", 11.44)) * 100) * x[s_idx, w_idx]
+            int(shifts[s_idx]["paid_hours"] * (0.0 if active_staff[w_idx].get("is_salaried") else active_staff[w_idx].get("hourly_rate", 12.71)) * 100) * x[s_idx, w_idx]
             for s_idx in range(len(shifts))
             for w_idx in range(len(active_staff))
         )
@@ -742,7 +742,7 @@ def solve_universal_rota(
                             break_dur = 0.5 if raw_dur >= 6.0 else 0.0
                             shift_paid = round(raw_dur - break_dur, 2)
 
-                    rate = 0.0 if w.get("is_salaried") else w.get("hourly_rate", 11.44)
+                    rate = 0.0 if w.get("is_salaried") else w.get("hourly_rate", 12.71)
                     cost = round(shift_paid * rate, 2)
                     roster_by_day[s["day"]].append({
                         "shift_id": s["id"],
