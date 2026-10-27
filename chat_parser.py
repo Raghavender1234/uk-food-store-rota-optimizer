@@ -230,8 +230,12 @@ def parse_user_message(text: str, current_state: Dict[str, Any]) -> Tuple[str, D
     is_surge = any(kw in lower for kw in [
         "match", "stadium", "mk stadium", "game", "concert", "event",
         "more people", "extra people", "more staff", "extra staff",
-        "boost staff", "surge", "busy night", "heavy trade", "crowd"
-    ])
+        "boost staff", "surge", "busy night", "heavy trade", "crowd",
+        "add one more", "add 1 more", "add two more", "add 2 more",
+        "one more in", "extra in", "more in kitchen", "more in foh",
+        "add extra", "put one more", "need one more", "need extra",
+        "extra person", "more person", "extra worker", "one more person"
+    ]) or (any(w in lower for w in ["add", "put", "need", "want"]) and any(w in lower for w in ["more", "extra"]) and any(w in lower for w in ["kitchen", "foh", "staff", "person", "rush", "peak"]))
     if is_surge:
         # Extract days
         surge_days = []
@@ -243,6 +247,8 @@ def parse_user_message(text: str, current_state: Dict[str, Any]) -> Tuple[str, D
                 surge_days = ["Fri", "Sat", "Sun"]
             elif "friday" in lower or "fri" in lower:
                 surge_days = ["Fri"]
+            elif "saturday" in lower or "sat" in lower:
+                surge_days = ["Sat"]
             else:
                 surge_days = ["Fri", "Sat"]
 
@@ -255,11 +261,22 @@ def parse_user_message(text: str, current_state: Dict[str, Any]) -> Tuple[str, D
         if not surge_depts:
             surge_depts = ["FOH", "Kitchen"]
 
-        # Extract extra count per dept (e.g. "2 more people", default 1)
-        cnt_match = re.search(r'(\d+)\s*(?:more|extra)\s*(?:people|staff|workers)?', lower)
-        extra_count = int(cnt_match.group(1)) if cnt_match else 1
+        # Extract extra count per dept (supports "one", "two", "three", "1", "2", etc.)
+        num_words = {"one": 1, "two": 2, "three": 3, "four": 4, "a": 1, "an": 1}
+        cnt_match = re.search(r'\b(\d+|one|two|three|four)\s*(?:more|extra)?\s*(?:in|person|people|staff|worker)?', lower)
+        if cnt_match:
+            raw_cnt = cnt_match.group(1).lower()
+            extra_count = num_words.get(raw_cnt, int(raw_cnt) if raw_cnt.isdigit() else 1)
+        else:
+            extra_count = 1
 
-        reason = "MK Stadium Match Surge" if any(w in lower for w in ["stadium", "match", "game"]) else "Event Demand Surge"
+        if any(w in lower for w in ["stadium", "match", "game"]):
+            reason = "MK Stadium Match Surge"
+        elif any(w in lower for w in ["peak", "rush", "dinner"]):
+            reason = "Peak Rush Trade Surge"
+        else:
+            reason = "Extra Staff Demand Surge"
+
         chosen_scope = scope or "LOCAL"
         target_list = state["global_rules"] if chosen_scope == "GLOBAL" else state["local_rules"]
 
@@ -285,7 +302,7 @@ def parse_user_message(text: str, current_state: Dict[str, Any]) -> Tuple[str, D
         return (
             f"{badge}: **{reason}** activated for **{days_str}**!\n"
             f"• Injected extra peak-trade shifts for **{depts_str}** (16:30–22:30).\n"
-            f"• Team members will be scheduled specifically to power through stadium crowd volume while strictly maintaining UK break regulations and budget limits.",
+            f"• Added **{extra_count} extra staff member(s)** to power through the rush while strictly maintaining UK break regulations and budget limits.",
             state,
             True
         )
