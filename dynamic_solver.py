@@ -725,14 +725,22 @@ def solve_universal_rota(
                     # If shift has flexible finish (e.g. Mon delivery open), dynamically adjust to worker's limit
                     if s.get("flexible_finish"):
                         day_rules = [r for r in all_rules if (r.get("target_id") in [w["id"], "ALL"]) and r.get("rule_type") in ["LATEST_FINISH", "DAY_TIMING_RESTRICTION"]]
-                        worker_max_finish = None
+                        s_day = s["day"].lower()[:3]
+                        day_specific_finishes = []
+                        generic_finishes = []
+
                         for r in day_rules:
                             r_days = [d.lower()[:3] for d in r.get("days", [])] if r.get("days") else []
-                            if not r_days or s["day"].lower()[:3] in r_days:
-                                f_val = r.get("latest_finish") or r.get("value")
-                                if f_val:
-                                    worker_max_finish = str(f_val).strip()
-                                    break
+                            f_val = r.get("latest_finish") or r.get("value")
+                            if f_val and ":" in str(f_val):
+                                f_str = str(f_val).strip()
+                                if s_day in r_days:
+                                    day_specific_finishes.append(f_str)
+                                elif not r_days:
+                                    generic_finishes.append(f_str)
+
+                        worker_max_finish = min(day_specific_finishes) if day_specific_finishes else (min(generic_finishes) if generic_finishes else None)
+
                         if worker_max_finish and worker_max_finish <= s["finish"]:
                             shift_finish = worker_max_finish
                             shift_time = f"{s['start']} - {shift_finish}"
