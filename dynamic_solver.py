@@ -531,11 +531,15 @@ def solve_universal_rota(
                         desc = s.get("desc", "").lower()
                         is_morn = any(m in time_str for m in ["07:00", "09:00", "10:00", "11:00", "12:00"]) or "morn" in s["id"].lower() or "prep" in desc
                         is_close = any(late in time_str for late in ["22:45", "23:00", "23:30"]) or "close" in desc
+                        is_eve = any(e in time_str for e in ["16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "22:30", "22:45", "23:00", "23:30"]) or any(k in desc for k in ["eve", "close", "dinner", "rush"]) or s.get("start", "") >= "14:00"
                         
                         if "morning" in blocked_types and is_morn:
                             if (w["id"], s_day) not in morn_exempt_map:
                                 model.Add(x[s_idx, w_idx] == 0)
                         if "close" in blocked_types and is_close:
+                            if (w["id"], s_day) not in peak_exempt_map:
+                                model.Add(x[s_idx, w_idx] == 0)
+                        if any(e in blocked_types for e in ["evening", "evenings"]) and is_eve:
                             if (w["id"], s_day) not in peak_exempt_map:
                                 model.Add(x[s_idx, w_idx] == 0)
 

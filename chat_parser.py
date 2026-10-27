@@ -409,12 +409,22 @@ def parse_user_message(text: str, current_state: Dict[str, Any]) -> Tuple[str, D
                 target_rule_list.append(new_rule)
                 return f"{badge}: **{new_rule['description']}** has been saved and enforced.", state, True
 
-        # C. BLOCKED SHIFTS (e.g. "Albert never closes and doesn't work in mornings")
+        # C. BLOCKED SHIFTS (e.g. "Albert never closes and doesn't work in mornings", "doesn't work in the evenings")
         blocked_shifts = []
         if any(w in lower for w in ["never close", "cannot close", "no close", "doesnt close", "doesn't close"]):
             blocked_shifts.append("Close")
         if any(w in lower for w in ["never morning", "cannot morning", "no morning", "doesnt work in morning", "doesn't work in morning", "no morn"]):
             blocked_shifts.append("Morning")
+        if any(w in lower for w in [
+            "never evening", "never evenings", "cannot evening", "cannot work evening",
+            "no evening", "no evenings", "doesnt work in evening", "doesn't work in evening",
+            "doesnt work in the evening", "doesn't work in the evening",
+            "doesnt work in the evenings", "doesn't work in the evenings",
+            "doesnt work evenings", "doesn't work evenings",
+            "not in the evening", "not in the evenings"
+        ]):
+            blocked_shifts.append("Evening")
+        blocked_shifts = list(dict.fromkeys(blocked_shifts))
         if blocked_shifts:
             new_rule = {
                 "id": f"rule_{chosen_scope.lower()}_{sid}_blocked_shifts_{len(target_rule_list)+1}",
@@ -548,20 +558,6 @@ def parse_user_message(text: str, current_state: Dict[str, Any]) -> Tuple[str, D
 
             summary_text = " ".join(added_descs)
             return f"{badge}: **{sname}** is {summary_text}.", state, True
-        if any(w in lower for w in ["never morning", "cannot morning", "no morning", "doesnt work in morning", "doesn't work in morning", "no morn"]):
-            blocked_shifts.append("Morning")
-        if blocked_shifts:
-            new_rule = {
-                "id": f"rule_{chosen_scope.lower()}_{sid}_blocked_shifts_{len(target_rule_list)+1}",
-                "scope": chosen_scope,
-                "target_type": "EMPLOYEE",
-                "target_id": sid,
-                "rule_type": "BLOCKED_SHIFTS",
-                "value": blocked_shifts,
-                "description": f"{sname} never works {', '.join(blocked_shifts)} shifts."
-            }
-            target_rule_list.append(new_rule)
-            return f"{badge}: **{new_rule['description']}** has been saved and enforced.", state, True
 
         # F. HOUR CAP / LIMIT (e.g. "Limit Jordan to 20 hours next week")
         hrs_match = re.search(r'(?:to|at|max|limit)\s*(\d+[\.\d]*)\s*(?:hours|hrs|h)?', lower)
