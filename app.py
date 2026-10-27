@@ -278,6 +278,16 @@ HTML_TEMPLATE = """
     .kpi-value { font-size: 1.45rem; font-weight: 800; font-family: var(--font-mono); }
     .kpi-sub { font-size: 0.75rem; color: var(--text-muted); }
 
+    .manager-quick-bar {
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-left: 4px solid var(--primary);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    }
+
     /* Filter Bar for Timetable */
     .filter-bar {
       background: #0f172a;
@@ -740,6 +750,62 @@ HTML_TEMPLATE = """
 
     <!-- TAB 1: TIMETABLE -->
     <div class="tab-pane active" id="pane-timetable">
+
+      <!-- MANAGER ONE-TOUCH CONTROL STUDIO -->
+      <div class="manager-quick-bar">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+          <div>
+            <div style="font-size:1.15rem; font-weight:800; color:#38bdf8; display:flex; align-items:center; gap:8px;">
+              <span>⚡ Store Manager 1-Click Rota Studio</span>
+            </div>
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">
+              Instant AI recalculation · All 19 store team members · Auto-deducts 30m break & guarantees 2 rest days
+            </div>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn secondary" onclick="regenerateRota('balanced')">⚖️ Fair & Balanced</button>
+            <button class="btn primary" onclick="regenerateRota('powerhouse')">⚡ Pay-Weekend Powerhouse</button>
+            <a href="/api/export_csv" class="btn success">📥 Export to Excel (CSV)</a>
+          </div>
+        </div>
+
+        <!-- Quick Natural Spoken English Bar -->
+        <div style="display:flex; gap:8px; margin-bottom:10px;">
+          <input type="text" id="quickCommandInput" class="form-control" placeholder="💬 Type or say a change (e.g. 'Stella finishes by 2pm Monday', 'Barry is off this Friday', 'Limit Raghavender to 25h')..." onkeydown="if(event.key==='Enter') executeQuickCommand()" />
+          <button class="btn primary" onclick="executeQuickCommand()" style="white-space:nowrap; padding:10px 18px; font-weight:700;">⚡ Apply & Re-Solve</button>
+        </div>
+
+        <!-- Quick 1-Click Action Chips & Fast Day Off -->
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+            <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">Quick Shortcuts:</span>
+            <span class="hint-chip" onclick="quickChat('Stella works up to 2pm on Monday')">⏰ Stella: 7-2 Mon</span>
+            <span class="hint-chip" onclick="quickChat('Barry is off this Thursday and Friday')">🏖️ Barry: Off Thu/Fri</span>
+            <span class="hint-chip" onclick="quickChat('Limit Raghavender to 25 hours next week')">⏱️ Raghavender: 25h</span>
+            <span class="hint-chip" onclick="quickChat('Albert never closes and doesn\'t work in mornings')">🚫 Albert: No Close/Morn</span>
+            <span class="hint-chip" onclick="quickChat('Reset all overrides')">🔄 Reset This Week</span>
+          </div>
+
+          <!-- Quick Day-Off Dropper -->
+          <div style="display:flex; gap:6px; align-items:center;">
+            <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">Mark Day Off:</span>
+            <select id="quickStaffOffSelect" class="select-styled" style="padding:5px 8px; font-size:0.78rem;">
+              <option value="">-- Worker --</option>
+            </select>
+            <select id="quickDayOffSelect" class="select-styled" style="padding:5px 8px; font-size:0.78rem;">
+              <option value="Mon">Mon</option>
+              <option value="Tue">Tue</option>
+              <option value="Wed">Wed</option>
+              <option value="Thu">Thu</option>
+              <option value="Fri">Fri</option>
+              <option value="Sat">Sat</option>
+              <option value="Sun">Sun</option>
+            </select>
+            <button class="btn secondary" onclick="quickMarkOff()" style="padding:5px 12px; font-size:0.78rem; font-weight:700;">Mark OFF</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Visible Staff Highlight Dropdown Filter -->
       <div class="filter-bar">
         <div class="filter-group">
@@ -1158,6 +1224,18 @@ HTML_TEMPLATE = """
           editSelect.appendChild(opt);
         });
       }
+
+      // 5. Manager Quick Day Off Dropdown
+      const quickStaffOff = document.getElementById('quickStaffOffSelect');
+      if (quickStaffOff) {
+        quickStaffOff.innerHTML = '<option value="">-- Worker --</option>';
+        staffList.forEach(w => {
+          const opt = document.createElement('option');
+          opt.value = w.id;
+          opt.innerText = w.name;
+          quickStaffOff.appendChild(opt);
+        });
+      }
     }
 
     function adjustRuleFormInputs() {
@@ -1533,6 +1611,26 @@ HTML_TEMPLATE = """
     function quickChat(txt) {
       document.getElementById('chatInput').value = txt;
       sendChatMessage();
+    }
+
+    function executeQuickCommand() {
+      const input = document.getElementById('quickCommandInput');
+      const text = input ? input.value.trim() : '';
+      if (!text) return;
+      input.value = '';
+      quickChat(text);
+    }
+
+    function quickMarkOff() {
+      const staffSelect = document.getElementById('quickStaffOffSelect');
+      const daySelect = document.getElementById('quickDayOffSelect');
+      if (!staffSelect || !staffSelect.value) {
+        alert('Please select a team member from the dropdown first.');
+        return;
+      }
+      const staffName = staffSelect.options[staffSelect.selectedIndex].text;
+      const day = daySelect ? daySelect.value : 'Mon';
+      quickChat(`${staffName} is off this ${day}`);
     }
 
     async function regenerateRota(mode) {

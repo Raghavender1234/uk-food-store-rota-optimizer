@@ -32,10 +32,9 @@ def build_shifts_for_store(store_hours: Dict[str, Any], is_pay_week: bool = Fals
 
         # 1. Opening Shift
         if is_order_day:
-            # Monday delivery & ordering open: 07:00 - 14:00 (7am to 2pm, 6.5h paid after 30m break)
-            # Management keyholder shift: General Manager or Assistant Manager (with Team Leader keyholder fallback)
-            order_finish = day_cfg.get("order_finish", "14:00")
-            order_paid = 6.5 if order_finish == "14:00" else 8.0
+            # Monday delivery & ordering open (standard full shift runs to 16:00, but adapts dynamically if worker finishes earlier)
+            order_finish = day_cfg.get("order_finish", "16:00")
+            order_paid = 8.5 if order_finish == "16:00" else (8.0 if order_finish == "15:30" else (6.5 if order_finish == "14:00" else 8.0))
             shifts.append({
                 "id": f"{day}_Order_Open",
                 "day": day,
@@ -46,8 +45,9 @@ def build_shifts_for_store(store_hours: Dict[str, Any], is_pay_week: bool = Fals
                 "dept": "FOH",
                 "req_skill": "FOH",
                 "requires_keyholder": True,
+                "flexible_finish": True,
                 "allowed_roles": ["General Manager", "Assistant Manager", "Team Leader"],
-                "desc": f"Food Delivery, Stock Ordering & Store Open (07:00 - {order_finish})"
+                "desc": f"Food Delivery, Stock Ordering & Store Open"
             })
             # Other team members start at standard 09:00 AM opening, NOT 07:00 AM
             store_open_for_team = "09:00"
@@ -351,6 +351,49 @@ def solve_universal_rota(
                         if s["id"] not in allowed_shift_ids:
                             model.Add(x[s_idx, w_idx] == 0)
 
+        # RULE: MUST WORK ON SPECIFIC DAYS (e.g. Luke wants Stella on Monday, Barry on Friday)
+        elif rule_type in ["MUST_WORK_DAYS", "LOCKED_DAYS", "WORKS_ON_DAYS"]:
+            target_days = val if isinstance(val, list) else [val]
+            target_days = [d.capitalize()[:3] for d in target_days]
+            for w_idx, w in enumerate(active_staff):
+                if w["id"] == target_id:
+                    for d in target_days:
+                        if (d, w_idx) in day_work_vars:
+                            model.Add(day_work_vars[d, w_idx] == 1)
+
+        # RULE: REQUIRE PEAK HOURS / DINNER RUSH (e.g. Raghavender on Friday and Saturday in peak hours)
+        elif rule_type in ["REQUIRE_PEAK_HOURS", "PEAK_HOURS"]:
+            target_days = [d.capitalize()[:3] for d in (rule.get("days") or (val if isinstance(val, list) else [val] if val else DAYS))]
+            for w_idx, w in enumerate(active_staff):
+                if w["id"] == target_id:
+                    for d in target_days:
+                        peak_shifts = [
+                            s_idx for s_idx, s in enumerate(shifts)
+                            if s["day"] == d and (
+                                any(t in s.get("time", "") for t in ["16:00", "17:00", "22:45", "23:00", "23:30"])
+                                or any(k in s.get("desc", "").lower() for k in ["close", "dinner", "rush", "grill", "fryers"])
+                            )
+                        ]
+                        if peak_shifts:
+                            model.Add(sum(x[s_idx, w_idx] for s_idx in peak_shifts) >= 1)
+
+        # RULE: REQUIRE MORNING HOURS (e.g. Albert on Tuesday and Thursday morning)
+        elif rule_type in ["REQUIRE_MORNING_HOURS", "MORNING_HOURS"]:
+            target_days = [d.capitalize()[:3] for d in (rule.get("days") or (val if isinstance(val, list) else [val] if val else DAYS))]
+            for w_idx, w in enumerate(active_staff):
+                if w["id"] == target_id:
+                    for d in target_days:
+                        morn_shifts = [
+                            s_idx for s_idx, s in enumerate(shifts)
+                            if s["day"] == d and (
+                                any(t in s.get("start", "") for t in ["07:00", "09:00", "10:00", "11:00"])
+                                or "morn" in s["id"].lower()
+                                or "open" in s["id"].lower()
+                            )
+                        ]
+                        if morn_shifts:
+                            model.Add(sum(x[s_idx, w_idx] for s_idx in morn_shifts) >= 1)
+
         # RULE: LATEST FINISH TIME (can apply to all days or specific days)
         elif rule_type == "LATEST_FINISH":
             max_finish = str(val).strip()  # e.g. "20:00" or "18:00"
@@ -362,6 +405,13 @@ def solve_universal_rota(
                             continue
                         finish = s.get("finish", "22:45")
                         time_str = s.get("time", "")
+
+                        # Flexible shifts adapt dynamically to worker's limit
+                        if s.get("flexible_finish"):
+                            if max_finish < "13:30":
+                                model.Add(x[s_idx, w_idx] == 0)
+                            continue
+
                         # If finish is past max_finish or it's a late closing shift
                         if finish > max_finish or ("20:00" in max_finish and any(late in time_str for late in ["21:00", "22:00", "22:30", "22:45", "23:00", "23:30", "Close"])):
                             model.Add(x[s_idx, w_idx] == 0)
@@ -391,7 +441,10 @@ def solve_universal_rota(
                         if applicable_days and s["day"].lower()[:3] not in applicable_days:
                             continue
                         if max_finish and s.get("finish", "22:45") > str(max_finish):
-                            model.Add(x[s_idx, w_idx] == 0)
+                            if s.get("flexible_finish") and str(max_finish) >= "13:30":
+                                pass
+                            else:
+                                model.Add(x[s_idx, w_idx] == 0)
                         if min_start and s.get("start", "09:00") < str(min_start):
                             model.Add(x[s_idx, w_idx] == 0)
 
@@ -587,21 +640,45 @@ def solve_universal_rota(
         for s_idx, s in enumerate(shifts):
             for w_idx, w in enumerate(active_staff):
                 if solver.Value(x[s_idx, w_idx]) == 1:
+                    shift_finish = s["finish"]
+                    shift_time = s["time"]
+                    shift_paid = s["paid_hours"]
+
+                    # If shift has flexible finish (e.g. Mon delivery open), dynamically adjust to worker's limit
+                    if s.get("flexible_finish"):
+                        day_rules = [r for r in all_rules if (r.get("target_id") in [w["id"], "ALL"]) and r.get("rule_type") in ["LATEST_FINISH", "DAY_TIMING_RESTRICTION"]]
+                        worker_max_finish = None
+                        for r in day_rules:
+                            r_days = [d.lower()[:3] for d in r.get("days", [])] if r.get("days") else []
+                            if not r_days or s["day"].lower()[:3] in r_days:
+                                f_val = r.get("latest_finish") or r.get("value")
+                                if f_val:
+                                    worker_max_finish = str(f_val).strip()
+                                    break
+                        if worker_max_finish and worker_max_finish <= s["finish"]:
+                            shift_finish = worker_max_finish
+                            shift_time = f"{s['start']} - {shift_finish}"
+                            start_h = float(s["start"].split(":")[0]) + float(s["start"].split(":")[1])/60.0
+                            fin_h = float(shift_finish.split(":")[0]) + float(shift_finish.split(":")[1])/60.0
+                            raw_dur = fin_h - start_h
+                            break_dur = 0.5 if raw_dur >= 6.0 else 0.0
+                            shift_paid = round(raw_dur - break_dur, 2)
+
                     rate = 0.0 if w.get("is_salaried") else w.get("hourly_rate", 11.44)
-                    cost = round(s["paid_hours"] * rate, 2)
+                    cost = round(shift_paid * rate, 2)
                     roster_by_day[s["day"]].append({
                         "shift_id": s["id"],
-                        "time": s["time"],
-                        "desc": s["desc"],
+                        "time": shift_time,
+                        "desc": f"{s['desc']} ({shift_time})",
                         "assigned_to": w["name"],
                         "role": w["role"],
                         "pay_tier": w.get("pay_tier", "Hourly"),
                         "is_salaried": w.get("is_salaried", False),
-                        "paid_hours": s["paid_hours"],
+                        "paid_hours": shift_paid,
                         "hourly_rate": rate,
                         "cost": cost
                     })
-                    individual_hours[w["name"]] += s["paid_hours"]
+                    individual_hours[w["name"]] += shift_paid
                     individual_cost[w["name"]] += cost
 
         total_hours = round(sum(individual_hours.values()), 2)

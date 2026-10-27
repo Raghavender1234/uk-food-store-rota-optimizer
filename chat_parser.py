@@ -38,6 +38,16 @@ def resolve_staff(text: str, staff_list: List[Dict[str, Any]]) -> Optional[Tuple
     """
     lower = text.lower()
 
+    # 0. Check verb-targeted staff first: e.g. "Luke wants Barry on Friday" -> targets Barry!
+    action_match = re.search(r'\b(?:wants|want|make|keep|put|assign|schedule)\s+([a-z]+)', lower)
+    if action_match:
+        target_token = action_match.group(1).strip()
+        for s in staff_list:
+            full = s.get("name", "").lower()
+            first = full.split()[0] if full else ""
+            if target_token == first or target_token == s.get("id"):
+                return s["id"], s.get("name")
+
     # 1. Check full names and specific staff aliases from active staff_list
     for s in staff_list:
         full_name = s.get("name", "").lower()
@@ -86,6 +96,56 @@ def extract_days(text: str) -> List[str]:
             days.append(code)
     week_order = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
     return sorted(days, key=lambda d: week_order.index(d) if d in week_order else 99)
+
+def parse_time_token(raw_t: str, is_end: bool = False) -> Optional[str]:
+    """Converts natural time tokens like '2 pm', '14:00', '7', 'close' into 24h format HH:MM."""
+    raw_t = raw_t.strip().lower()
+    if 'close' in raw_t:
+        return '23:30'
+    t_m = re.search(r'(\d{1,2})(?::(\d{2}))?\s*(am|pm)?', raw_t)
+    if not t_m:
+        return None
+    h = int(t_m.group(1))
+    m = int(t_m.group(2)) if t_m.group(2) else 0
+    ampm = t_m.group(3)
+    if ampm == 'pm' and h < 12:
+        h += 12
+    elif ampm == 'am' and h == 12:
+        h = 0
+    elif not ampm:
+        if h <= 6 or (is_end and h < 12 and h <= 6):
+            h += 12
+        elif is_end and h < 8:
+            h += 12
+    return f"{h:02d}:{m:02d}"
+
+def extract_schedule_details(text: str) -> Tuple[Optional[str], Optional[str], bool, bool, bool]:
+    """
+    Extracts (start_time, finish_time, is_peak, is_morning, is_close) from natural text.
+    """
+    lower = text.lower()
+    is_peak = any(w in lower for w in ['peak', 'rush', 'dinner', 'busy'])
+    is_morn = any(w in lower for w in ['morning', 'open', 'opening', 'early'])
+    is_close = any(w in lower for w in ['close', 'closing', 'night'])
+    
+    start_t, finish_t = None, None
+    
+    # 1. Range check like '5 to 9', '7 to 2', '7am to 2pm', '12 to 6', '4pm to close'
+    range_match = re.search(r'(?:from\s*)?(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)\s*(?:to|-|till|until)\s*(\d{1,2}(?::\d{2})?\s*(?:am|pm)?|close)', lower)
+    if range_match:
+        start_t = parse_time_token(range_match.group(1), is_end=False)
+        finish_t = parse_time_token(range_match.group(2), is_end=True)
+    else:
+        # Finish only (e.g. 'till 2 pm', 'until 4pm', 'by 2pm', 'up to 2pm', 'latest 6pm', 'finish by 2pm')
+        fin_match = re.search(r'(?:till|until|by|up to|upto|latest|finish|ends? at|leave)\s*(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)', lower)
+        if fin_match:
+            finish_t = parse_time_token(fin_match.group(1), is_end=True)
+        # Start only (e.g. 'from 11am', 'starts at 10am', 'after 12pm', 'earliest 9am')
+        start_match = re.search(r'(?:from|after|starts? at|starting at|earliest)\s*(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)', lower)
+        if start_match:
+            start_t = parse_time_token(start_match.group(1), is_end=False)
+            
+    return start_t, finish_t, is_peak, is_morn, is_close
 
 def extract_time_str(text: str) -> Optional[str]:
     """Extracts time string and converts to 24h format HH:MM."""
@@ -233,50 +293,27 @@ def parse_user_message(text: str, current_state: Dict[str, Any]) -> Tuple[str, D
 
     if staff_match:
         sid, sname = staff_match
-        chosen_scope = scope or ("LOCAL" if any(w in lower for w in ["off", "holiday", "sick", "leave", "away"]) else "GLOBAL")
+        chosen_scope = scope or ("LOCAL" if any(w in lower for w in ["off", "holiday", "sick", "leave", "away", "this week"]) else "GLOBAL")
         target_rule_list = state["global_rules"] if chosen_scope == "GLOBAL" else state["local_rules"]
         badge = "🔒 Global Boundary (Permanent)" if chosen_scope == "GLOBAL" else "⚡ Local Boundary (This Week Only)"
 
         days = extract_days(lower)
+        start_t, finish_t, is_peak, is_morn, is_close = extract_schedule_details(lower)
 
-        # A. WORKS ONLY ON SPECIFIC DAYS (e.g. "Taylor works only sundays", "Jordan only mon and tue")
-        if "only" in lower and days and not any(w in lower for w in ["finish", "leave", "up to", "until", "start", "after", "before"]):
-            new_rule = {
-                "id": f"rule_{chosen_scope.lower()}_{sid}_only_days_{len(target_rule_list)+1}",
-                "scope": chosen_scope,
-                "target_type": "EMPLOYEE",
-                "target_id": sid,
-                "rule_type": "WORKS_ONLY_DAYS",
-                "value": days,
-                "description": f"{sname} works ONLY on {', '.join(days)}."
-            }
-            target_rule_list[:] = [r for r in target_rule_list if not (r.get("target_id") == sid and r.get("rule_type") in ["WORKS_ONLY_DAYS", "BLOCKED_DAYS"])]
-            target_rule_list.append(new_rule)
-            return f"{badge}: **{new_rule['description']}** has been saved and enforced.", state, True
+        # A. LEAVE / HOLIDAY / OFF THIS WEEK (e.g. "Barry is off this Thursday and Friday")
+        if any(w in lower for w in ["off", "holiday", "leave", "sick", "unavailable", "away"]) and not any(w in lower for w in ["work on", "works on", "keep"]):
+            if days:
+                if sid not in state["leave"]:
+                    state["leave"][sid] = []
+                for d in days:
+                    if d not in state["leave"][sid]:
+                        state["leave"][sid].append(d)
+                return f"🏖️ **{sname}** marked as OFF / on leave on: **{', '.join(days)}** for this upcoming week.", state, True
+            elif "all week" in lower or "entire week" in lower:
+                state["leave"][sid] = "All"
+                return f"🏖️ **{sname}** marked as OFF for the entire week.", state, True
 
-        # B. DAY-SPECIFIC OR GENERAL TIMING RESTRICTION (e.g. "On Fridays Jordan works up to 6pm only", "Sam latest finish is 20:00")
-        is_finish = any(w in lower for w in ["finish", "leave", "up to", "upto", "until", "past", "latest"])
-        is_start = any(w in lower for w in ["start", "before", "after", "earliest"])
-        
-        if is_finish or is_start:
-            time_str = extract_time_str(lower)
-            if time_str:
-                rule_type = "LATEST_FINISH" if is_finish else "EARLIEST_START"
-                day_desc = f" on {', '.join(days)}" if days else ""
-                new_rule = {
-                    "id": f"rule_{chosen_scope.lower()}_{sid}_time_{len(target_rule_list)+1}",
-                    "scope": chosen_scope,
-                    "target_type": "EMPLOYEE",
-                    "target_id": sid,
-                    "rule_type": rule_type,
-                    "days": days or [],
-                    "value": time_str,
-                    "description": f"{sname} {('latest allowed finish is ' + time_str) if is_finish else ('earliest allowed start is ' + time_str)}{day_desc}."
-                }
-                target_rule_list.append(new_rule)
-                return f"{badge}: **{new_rule['description']}** has been saved and enforced.", state, True
-
-        # C. BLOCKED DAYS / NEVER WORKS ON DAYS (e.g. "Alex never works sundays and tuesdays")
+        # B. BLOCKED DAYS / NEVER WORKS ON DAYS (e.g. "Albert never works sundays and tuesdays")
         if any(w in lower for w in ["never work", "doesnt work", "doesn't work", "cannot work on", "not working on", "blocked on"]):
             if days:
                 new_rule = {
@@ -291,23 +328,128 @@ def parse_user_message(text: str, current_state: Dict[str, Any]) -> Tuple[str, D
                 target_rule_list.append(new_rule)
                 return f"{badge}: **{new_rule['description']}** has been saved and enforced.", state, True
 
-        # D. LEAVE / HOLIDAY / OFF THIS WEEK (e.g. "Morgan is off this Thursday and Friday")
-        if any(w in lower for w in ["off", "holiday", "leave", "sick", "unavailable", "away"]):
-            if days:
-                if sid not in state["leave"]:
-                    state["leave"][sid] = []
-                for d in days:
-                    if d not in state["leave"][sid]:
-                        state["leave"][sid].append(d)
-                return f"🏖️ **{sname}** marked as OFF / on leave on: **{', '.join(days)}** for this upcoming week.", state, True
-            elif "all week" in lower or "entire week" in lower:
-                state["leave"][sid] = "All"
-                return f"🏖️ **{sname}** marked as OFF for the entire week.", state, True
-
-        # E. BLOCKED SHIFTS (e.g. "Alex never closes and doesn't work in mornings")
+        # C. BLOCKED SHIFTS (e.g. "Albert never closes and doesn't work in mornings")
         blocked_shifts = []
         if any(w in lower for w in ["never close", "cannot close", "no close", "doesnt close", "doesn't close"]):
             blocked_shifts.append("Close")
+        if any(w in lower for w in ["never morning", "cannot morning", "no morning", "doesnt work in morning", "doesn't work in morning", "no morn"]):
+            blocked_shifts.append("Morning")
+        if blocked_shifts:
+            new_rule = {
+                "id": f"rule_{chosen_scope.lower()}_{sid}_blocked_shifts_{len(target_rule_list)+1}",
+                "scope": chosen_scope,
+                "target_type": "EMPLOYEE",
+                "target_id": sid,
+                "rule_type": "BLOCKED_SHIFTS",
+                "value": blocked_shifts,
+                "description": f"{sname} never works {', '.join(blocked_shifts)} shifts."
+            }
+            target_rule_list.append(new_rule)
+            return f"{badge}: **{new_rule['description']}** has been saved and enforced.", state, True
+
+        # D. WORKS ONLY ON SPECIFIC DAYS (e.g. "Taylor works only sundays", "Jordan only mon and tue")
+        if "only" in lower and days and not (start_t or finish_t or is_peak or is_morn or is_close):
+            new_rule = {
+                "id": f"rule_{chosen_scope.lower()}_{sid}_only_days_{len(target_rule_list)+1}",
+                "scope": chosen_scope,
+                "target_type": "EMPLOYEE",
+                "target_id": sid,
+                "rule_type": "WORKS_ONLY_DAYS",
+                "value": days,
+                "description": f"{sname} works ONLY on {', '.join(days)}."
+            }
+            target_rule_list[:] = [r for r in target_rule_list if not (r.get("target_id") == sid and r.get("rule_type") in ["WORKS_ONLY_DAYS", "BLOCKED_DAYS"])]
+            target_rule_list.append(new_rule)
+            return f"{badge}: **{new_rule['description']}** has been saved and enforced.", state, True
+
+        # E. MANAGER SPECIFIC DAY SCHEDULER (Mandatory work day + peak hours / morning / specific time window)
+        # e.g. "Stella works on Monday but till 2 pm"
+        # e.g. "Make Raghavender work on Friday and Saturday mandatory in peak hours"
+        # e.g. "Keep Albert on Tuesday and Thursday morning"
+        # e.g. "Keep Albert on Friday from 12 to 6"
+        # e.g. "Luke wants Barry on Friday 4pm to close"
+        # e.g. "Assign Stella on Monday 7 to 2"
+        is_sched_intent = any(w in lower for w in ["work on", "works on", "work", "works", "wants", "keep", "make", "assign", "strictly", "mandatory", "schedule", "put", "on monday", "on tuesday", "on wednesday", "on thursday", "on friday", "on saturday", "on sunday"])
+        has_time_or_period = (start_t is not None) or (finish_t is not None) or is_peak or is_morn or is_close
+
+        if days and (has_time_or_period or is_sched_intent):
+            added_descs = []
+
+            # 1. Mandatory Work Day Guarantee
+            target_rule_list[:] = [r for r in target_rule_list if not (r.get("target_id") == sid and r.get("rule_type") == "BLOCKED_DAYS" and any(d in r.get("value", []) for d in days))]
+            must_work_rule = {
+                "id": f"rule_{chosen_scope.lower()}_{sid}_must_work_{len(target_rule_list)+1}",
+                "scope": chosen_scope,
+                "target_type": "EMPLOYEE",
+                "target_id": sid,
+                "rule_type": "MUST_WORK_DAYS",
+                "value": days,
+                "description": f"{sname} MUST work on: {', '.join(days)}."
+            }
+            target_rule_list.append(must_work_rule)
+            added_descs.append(f"scheduled to work on **{', '.join(days)}**")
+
+            # 2. Peak Hours / Dinner Rush
+            if is_peak or is_close:
+                peak_rule = {
+                    "id": f"rule_{chosen_scope.lower()}_{sid}_peak_{len(target_rule_list)+1}",
+                    "scope": chosen_scope,
+                    "target_type": "EMPLOYEE",
+                    "target_id": sid,
+                    "rule_type": "REQUIRE_PEAK_HOURS",
+                    "days": days,
+                    "description": f"{sname} assigned to PEAK RUSH / DINNER shifts on {', '.join(days)}."
+                }
+                target_rule_list.append(peak_rule)
+                added_descs.append("during **PEAK RUSH hours (17:00–21:00/Close)**")
+
+            # 3. Morning Shift
+            if is_morn:
+                morn_rule = {
+                    "id": f"rule_{chosen_scope.lower()}_{sid}_morn_{len(target_rule_list)+1}",
+                    "scope": chosen_scope,
+                    "target_type": "EMPLOYEE",
+                    "target_id": sid,
+                    "rule_type": "REQUIRE_MORNING_HOURS",
+                    "days": days,
+                    "description": f"{sname} assigned to MORNING shifts on {', '.join(days)}."
+                }
+                target_rule_list.append(morn_rule)
+                added_descs.append("on **MORNING shifts**")
+
+            # 4. Start Time Restriction
+            if start_t:
+                start_rule = {
+                    "id": f"rule_{chosen_scope.lower()}_{sid}_start_{len(target_rule_list)+1}",
+                    "scope": chosen_scope,
+                    "target_type": "EMPLOYEE",
+                    "target_id": sid,
+                    "rule_type": "EARLIEST_START",
+                    "days": days,
+                    "value": start_t,
+                    "description": f"{sname} earliest start is {start_t} on {', '.join(days)}."
+                }
+                target_rule_list.append(start_rule)
+                added_descs.append(f"starting from **{start_t}**")
+
+            # 5. Finish Time Restriction (removes any previous conflicting finish rule for this person on these days)
+            if finish_t:
+                target_rule_list[:] = [r for r in target_rule_list if not (r.get("target_id") == sid and r.get("rule_type") in ["LATEST_FINISH", "DAY_TIMING_RESTRICTION"] and any(d in r.get("days", []) for d in days))]
+                finish_rule = {
+                    "id": f"rule_{chosen_scope.lower()}_{sid}_finish_{len(target_rule_list)+1}",
+                    "scope": chosen_scope,
+                    "target_type": "EMPLOYEE",
+                    "target_id": sid,
+                    "rule_type": "LATEST_FINISH",
+                    "days": days,
+                    "value": finish_t,
+                    "description": f"{sname} latest finish is {finish_t} on {', '.join(days)}."
+                }
+                target_rule_list.append(finish_rule)
+                added_descs.append(f"with finish by **{finish_t}**")
+
+            summary_text = " ".join(added_descs)
+            return f"{badge}: **{sname}** is {summary_text}.", state, True
         if any(w in lower for w in ["never morning", "cannot morning", "no morning", "doesnt work in morning", "doesn't work in morning", "no morn"]):
             blocked_shifts.append("Morning")
         if blocked_shifts:
